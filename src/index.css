@@ -6,6 +6,9 @@
   --color-light-violet: #e5e5ff;
   --color-light-violet-variant: #c1b5eb;
   --color-text: #646870;
+  --color-border: rgba(100, 104, 112, 0.2);
+
+  --background-image-split-violet: linear-gradient(180deg, var(--color-violet) 35%, white 35%);
 }
 
 :root {
@@ -21,4 +24,17 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Screen reader only - visually hidden but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
