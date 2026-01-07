@@ -13,26 +13,25 @@ A modern, real-time currency converter application built with React, TypeScript,
 - Responsive design with Tailwind CSS
 - Virtual scrolling for currency selectors
 - Smart caching to minimize API calls
-- Dark-themed UI with smooth transitions
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
-- npm or yarn
+- yarn
 
 ### Installation
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/lucasezequielpereyra/currency-converter
 cd currency-converter
 ```
 
 2. Install dependencies:
 ```bash
-npm install
+yarn install
 ```
 
 3. Create environment file:
@@ -42,20 +41,20 @@ cp .env.example .env
 
 4. Start development server:
 ```bash
-npm run dev
+yarn dev
 ```
 
 The application will be available at `http://localhost:5173`
 
 ### Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run test:e2e` - Run E2E tests
-- `npm run test:e2e:ui` - Run E2E tests with Playwright UI
-- `npm run test:e2e:report` - Show Playwright test report
+- `yarn dev` - Start development server
+- `yarn build` - Build for production
+- `yarn preview` - Preview production build
+- `yarn lint` - Run ESLint
+- `yarn test:e2e` - Run E2E tests
+- `yarn test:e2e:ui` - Run E2E tests with Playwright UI
+- `yarn test:e2e:report` - Show Playwright test report
 
 ## Git Workflow & Pre-Push Hook
 
@@ -188,7 +187,7 @@ This project intentionally **does not use any component libraries** (Material-UI
 
 4. **Learning experience:** Building components from scratch demonstrates fundamental React skills.
 
-All components are **built natively** using React, TypeScript, and Tailwind CSS, without external dependencies beyond the core libraries mentioned above.
+All UI components are **built natively** using React, TypeScript, and Tailwind CSS. The only external dependencies used are the functional libraries mentioned above: TanStack Query for data fetching and caching, and TanStack Virtual for optimized list rendering.
 
 ## API
 
@@ -211,10 +210,6 @@ VITE_API_BASE_URL=https://api.vatcomply.com
 - Firefox (latest)
 - Safari (latest)
 - Edge (latest)
-
-## License
-
-MIT
 
 ## Author
 
