@@ -252,4 +252,195 @@ test.describe('Currency Converter E2E Tests', () => {
     // Verify no additional requests were made
     expect(requestCount).toBe(initialRequests)
   })
+
+  test('should calculate conversion correctly with mocked API', async ({ page }) => {
+    // Mock currencies endpoint
+    await page.route('**/api.vatcomply.com/currencies', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          USD: { name: 'US Dollar', symbol: '$' },
+          EUR: { name: 'Euro', symbol: '€' }
+        })
+      })
+    })
+
+    // Mock rates endpoint with known values
+    await page.route('**/api.vatcomply.com/rates**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          date: '2026-01-06',
+          base: 'USD',
+          rates: {
+            EUR: 0.85
+          }
+        })
+      })
+    })
+
+    await page.reload()
+    await page.waitForTimeout(2000)
+
+    // Select USD to EUR (already default)
+    const amountInput = page.locator('input[type="text"]').first()
+
+    // Test with amount 100
+    await amountInput.clear()
+    await amountInput.fill('100')
+    await page.waitForTimeout(2000)
+
+    // Verify calculation: 100 USD * 0.85 = 85 EUR
+    // With European format: 100,00 US Dollar = 85,000000 Euro
+    const resultSection = page.locator('section[aria-label="Conversion results"]')
+    await expect(resultSection).toContainText('100,00')
+    await expect(resultSection).toContainText('85,000000')
+
+    // Test with amount 50
+    await amountInput.clear()
+    await amountInput.fill('50')
+    await page.waitForTimeout(1000)
+
+    // Verify calculation: 50 USD * 0.85 = 42.5 EUR
+    await expect(resultSection).toContainText('50,00')
+    await expect(resultSection).toContainText('42,500000')
+
+    // Verify inverse rate: 1 EUR = 1/0.85 = 1.176471 USD
+    await expect(page.locator('p').filter({ hasText: '1 EUR =' })).toContainText('1,176471')
+  })
+
+  test('should not accept zero as amount', async ({ page }) => {
+    const amountInput = page.locator('input[type="text"]').first()
+
+    // Try to enter 0
+    await amountInput.clear()
+    await amountInput.fill('0')
+    await page.waitForTimeout(1000)
+
+    // Conversion result should not be visible or show error
+    const resultSection = page.locator('section[aria-label="Conversion results"]')
+    const isVisible = await resultSection.isVisible().catch(() => false)
+
+    // Either not visible or no conversion data shown
+    if (isVisible) {
+      // Should not show a calculated result with 0
+      const text = await resultSection.textContent()
+      expect(text).not.toMatch(/0,00.*=.*\d+/)
+    }
+  })
+
+  test('should not accept negative amounts', async ({ page }) => {
+    const amountInput = page.locator('input[type="text"]').first()
+
+    // Try to enter negative number
+    await amountInput.clear()
+    await amountInput.fill('-50')
+
+    // The input should either prevent it or not show conversion
+    const value = await amountInput.inputValue()
+
+    // Check if negative was prevented or conversion doesn't show
+    if (value.includes('-')) {
+      await page.waitForTimeout(1000)
+      const resultSection = page.locator('section[aria-label="Conversion results"]')
+      const isVisible = await resultSection.isVisible().catch(() => false)
+
+      // Should not show conversion for negative
+      if (isVisible) {
+        const text = await resultSection.textContent()
+        expect(text).not.toMatch(/-\d+/)
+      }
+    }
+  })
+
+  test('should calculate with large amounts correctly', async ({ page }) => {
+    // Mock currencies endpoint
+    await page.route('**/api.vatcomply.com/currencies', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          USD: { name: 'US Dollar', symbol: '$' },
+          EUR: { name: 'Euro', symbol: '€' }
+        })
+      })
+    })
+
+    // Mock API with known rate
+    await page.route('**/api.vatcomply.com/rates**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          date: '2026-01-06',
+          base: 'USD',
+          rates: {
+            EUR: 0.85
+          }
+        })
+      })
+    })
+
+    await page.reload()
+    await page.waitForTimeout(2000)
+
+    const amountInput = page.locator('input[type="text"]').first()
+
+    // Test with large amount: 1,000,000
+    await amountInput.clear()
+    await amountInput.fill('1000000')
+    await page.waitForTimeout(2000)
+
+    // Verify calculation: 1,000,000 * 0.85 = 850,000
+    // European format: 1.000.000,00 = 850.000,000000
+    const resultSection = page.locator('section[aria-label="Conversion results"]')
+    await expect(resultSection).toContainText('1.000.000,00')
+    await expect(resultSection).toContainText('850.000,000000')
+  })
+
+  test('should calculate with decimal amounts correctly', async ({ page }) => {
+    // Mock currencies endpoint
+    await page.route('**/api.vatcomply.com/currencies', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          USD: { name: 'US Dollar', symbol: '$' },
+          EUR: { name: 'Euro', symbol: '€' }
+        })
+      })
+    })
+
+    // Mock API with known rate
+    await page.route('**/api.vatcomply.com/rates**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          date: '2026-01-06',
+          base: 'USD',
+          rates: {
+            EUR: 0.85
+          }
+        })
+      })
+    })
+
+    await page.reload()
+    await page.waitForTimeout(2000)
+
+    const amountInput = page.locator('input[type="text"]').first()
+
+    // Test with decimal: 123,45 (European format input)
+    await amountInput.clear()
+    await amountInput.fill('123,45')
+    await page.waitForTimeout(2000)
+
+    // Verify calculation: 123.45 * 0.85 = 104.9325
+    const resultSection = page.locator('section[aria-label="Conversion results"]')
+    await expect(resultSection).toContainText('123,45')
+    await expect(resultSection).toContainText('104,932500')
+  })
 })
