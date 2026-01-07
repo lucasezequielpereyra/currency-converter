@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Read the push information from stdin
+while read local_ref local_sha remote_ref remote_sha
+do
+  # Check if pushing to main branch
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "🧪 Running E2E tests before pushing to main..."
+
+    # Run E2E tests
+    npm run test:e2e
+
+    # Check if tests passed
+    if [ $? -ne 0 ]; then
+      echo "❌ E2E tests failed. Push to main blocked."
+      echo "Fix the failing tests before pushing to main."
+      exit 1
+    fi
+
+    echo "✅ E2E tests passed. Proceeding with push."
+  fi
+done
+
+exit 0
