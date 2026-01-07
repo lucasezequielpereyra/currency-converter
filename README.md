@@ -204,13 +204,6 @@ Create a `.env` file in the root directory:
 VITE_API_BASE_URL=https://api.vatcomply.com
 ```
 
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
 ## Author
 
 Lucas Pereyra
