@@ -7,11 +7,13 @@ test.describe('Currency Converter E2E Tests', () => {
     await page.locator('#fromCurrency').waitFor({ state: 'visible', timeout: 10000 })
     await page.locator('#toCurrency').waitFor({ state: 'visible', timeout: 10000 })
 
-    // Wait for default currencies to be selected (not showing placeholder)
+    // Wait for default currencies to be selected (not showing placeholder or loading)
     await page.waitForFunction(() => {
       const fromText = document.querySelector('#fromCurrency')?.textContent || ''
       const toText = document.querySelector('#toCurrency')?.textContent || ''
-      return !fromText.includes('Select...') && !toText.includes('Select...')
+      const isNotPlaceholder = !fromText.includes('Select...') && !toText.includes('Select...')
+      const isNotLoading = !fromText.includes('Loading...') && !toText.includes('Loading...')
+      return isNotPlaceholder && isNotLoading
     }, { timeout: 10000 })
   })
 

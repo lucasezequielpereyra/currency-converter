@@ -11,6 +11,7 @@ interface CurrencyFormProps {
   onToCurrencyChange: (value: string) => void
   currencies: Currency[]
   onSwap: () => void
+  isLoadingCurrencies?: boolean
 }
 
 export const CurrencyForm: React.FC<CurrencyFormProps> = ({
@@ -21,7 +22,8 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
   toCurrency,
   onToCurrencyChange,
   currencies,
-  onSwap
+  onSwap,
+  isLoadingCurrencies = false
 }) => {
   const fromCurrencyOptions = currencies.filter(currency => currency.value !== toCurrency)
   const toCurrencyOptions = currencies.filter(currency => currency.value !== fromCurrency)
@@ -45,6 +47,7 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
           value={fromCurrency}
           onChange={onFromCurrencyChange}
           id="fromCurrency"
+          isLoading={isLoadingCurrencies}
         />
       </div>
       <div className="flex justify-center md:flex-col">
@@ -64,6 +67,7 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
           value={toCurrency}
           onChange={onToCurrencyChange}
           id="toCurrency"
+          isLoading={isLoadingCurrencies}
         />
       </div>
     </div>

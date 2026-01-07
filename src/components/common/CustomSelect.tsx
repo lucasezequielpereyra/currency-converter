@@ -16,6 +16,7 @@ interface CustomSelectProps {
   className?: string
   id?: string
   disabled?: boolean
+  isLoading?: boolean
 }
 
 export const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -25,7 +26,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   placeholder = 'Select...',
   className = '',
   id,
-  disabled = false
+  disabled = false,
+  isLoading = false
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -79,7 +81,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   }, [isOpen])
 
   const handleToggle = () => {
-    if (!disabled) {
+    if (!disabled && !isLoading) {
       setIsOpen(!isOpen)
       setSearchTerm('')
     }
@@ -135,27 +137,37 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         type="button"
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
-        disabled={disabled}
+        disabled={disabled || isLoading}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-controls={isOpen ? listboxId : undefined}
-        aria-label={selectedOption ? `Selected: ${selectedOption.label}` : placeholder}
+        aria-label={isLoading ? 'Loading currencies...' : selectedOption ? `Selected: ${selectedOption.label}` : placeholder}
+        aria-busy={isLoading}
         className={`w-full px-4 py-2 text-left border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-light-violet focus:border-light-violet hover:border-light-violet transition-all flex items-center justify-between ${
-          disabled ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-white cursor-pointer'
+          disabled || isLoading ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-white cursor-pointer'
         }`}
       >
-        <span className={selectedOption ? 'text-text' : 'text-gray-400'}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
-        <svg
-          className={`w-4 h-4 text-text transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        {isLoading ? (
+          <div className="flex items-center gap-2 w-full">
+            <div className="w-5 h-5 border-2 border-violet border-t-transparent rounded-full animate-spin" />
+            <span className="text-gray-400">Loading...</span>
+          </div>
+        ) : (
+          <>
+            <span className={selectedOption ? 'text-text' : 'text-gray-400'}>
+              {selectedOption ? selectedOption.label : placeholder}
+            </span>
+            <svg
+              className={`w-4 h-4 text-text transition-transform ${isOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </>
+        )}
       </button>
 
       {isOpen && (

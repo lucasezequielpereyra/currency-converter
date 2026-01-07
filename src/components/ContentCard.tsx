@@ -9,6 +9,7 @@ export const ContentCard = () => {
     toCurrency,
     setToCurrency,
     currencies,
+    isLoadingCurrencies,
     conversionData,
     isLoadingConversion,
     conversionError,
@@ -37,6 +38,7 @@ export const ContentCard = () => {
           onToCurrencyChange={setToCurrency}
           currencies={currencies}
           onSwap={swapCurrencies}
+          isLoadingCurrencies={isLoadingCurrencies}
         />
         <ConversionResult
           conversionData={conversionData}
