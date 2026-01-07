@@ -6,6 +6,13 @@ test.describe('Currency Converter E2E Tests', () => {
     // Wait for currencies to load
     await page.locator('#fromCurrency').waitFor({ state: 'visible', timeout: 10000 })
     await page.locator('#toCurrency').waitFor({ state: 'visible', timeout: 10000 })
+
+    // Wait for default currencies to be selected (not showing placeholder)
+    await page.waitForFunction(() => {
+      const fromText = document.querySelector('#fromCurrency')?.textContent || ''
+      const toText = document.querySelector('#toCurrency')?.textContent || ''
+      return !fromText.includes('Select...') && !toText.includes('Select...')
+    }, { timeout: 10000 })
   })
 
   const currencyPairs = [
@@ -52,8 +59,14 @@ test.describe('Currency Converter E2E Tests', () => {
         const currentFrom = await page.locator('#fromCurrency').textContent()
         const currentTo = await page.locator('#toCurrency').textContent()
 
+        // Clean up text content (remove extra whitespace)
+        const cleanFrom = currentFrom?.trim()
+        const cleanTo = currentTo?.trim()
+
         // Check if we need to swap (if desired currencies are opposite of current)
-        if (currentFrom?.includes(toLabel) && currentTo?.includes(fromLabel)) {
+        const needsSwap = cleanFrom?.includes(toLabel) && cleanTo?.includes(fromLabel)
+
+        if (needsSwap) {
           // Currencies are reversed, use swap button
           await page.locator('button[aria-label="Swap currencies"]').click()
           await page.waitForTimeout(500)
