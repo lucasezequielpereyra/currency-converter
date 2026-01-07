@@ -1,4 +1,4 @@
-const BASE_URL = 'https://api.vatcomply.com'
+const BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 export interface RatesResponse {
   date: string
