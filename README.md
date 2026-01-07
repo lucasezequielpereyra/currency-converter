@@ -1,73 +1,221 @@
-# React + TypeScript + Vite
+# Currency Converter
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, real-time currency converter application built with React, TypeScript, and TanStack Query.
 
-Currently, two official plugins are available:
+**Live Demo:** [https://currency-converter-topaz-xi.vercel.app](https://currency-converter-topaz-xi.vercel.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- Real-time currency conversion using VATComply API
+- Support for 30+ currencies
+- European number formatting (. for thousands, , for decimals)
+- Comprehensive error handling (network errors, server errors, unavailable currencies)
+- Responsive design with Tailwind CSS
+- Virtual scrolling for currency selectors
+- Smart caching to minimize API calls
+- Dark-themed UI with smooth transitions
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js 18+
+- npm or yarn
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd currency-converter
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Install dependencies:
+```bash
+npm install
 ```
+
+3. Create environment file:
+```bash
+cp .env.example .env
+```
+
+4. Start development server:
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:5173`
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run test:e2e` - Run E2E tests
+- `npm run test:e2e:ui` - Run E2E tests with Playwright UI
+- `npm run test:e2e:report` - Show Playwright test report
+
+## Git Workflow & Pre-Push Hook
+
+This project implements a **pre-push hook** that automatically runs E2E tests before allowing a push to the `main` branch.
+
+### How it works:
+
+1. When you attempt to push to `main`:
+```bash
+git push origin main
+```
+
+2. The pre-push hook automatically runs:
+```bash
+🧪 Running E2E tests before pushing to main...
+```
+
+3. **If tests pass:** Push proceeds normally
+```bash
+✅ E2E tests passed. Proceeding with push.
+```
+
+4. **If tests fail:** Push is blocked
+```bash
+❌ E2E tests failed. Push to main blocked.
+Fix the failing tests before pushing to main.
+```
+
+### Why a pre-push hook?
+
+We chose to implement the pre-push hook instead of relying solely on CI/CD for the following reason:
+
+- **Vercel Pipeline Conflicts:** Vercel's deployment pipeline automatically triggers on every push to `main`. By validating tests locally before pushing, we prevent failed builds from being deployed and avoid conflicts with Vercel's automatic deployment process.
+
+This approach ensures that only tested, working code reaches the `main` branch and gets deployed to production.
+
+## Project Architecture
+
+```
+src/
+├── assets/              # Icons and static assets
+├── components/
+│   └── common/          # Reusable components (CustomSelect, PriceInput, etc.)
+├── features/
+│   └── currency-converter/
+│       ├── components/  # Feature-specific components
+│       ├── hooks/       # Custom hooks (useConversion, useCurrencies)
+│       ├── services/    # API service layer
+│       └── types/       # TypeScript interfaces
+├── App.tsx              # Main application component
+└── main.tsx             # Application entry point
+
+e2e/                     # E2E tests with Playwright
+.husky/                  # Git hooks (pre-push)
+```
+
+### Key Architectural Decisions
+
+**1. Feature-based structure:** Code is organized by feature (currency-converter) rather than by type, making it easier to scale and maintain.
+
+**2. Service layer:** API calls are isolated in `services/currencyApi.ts`, separating data fetching from UI logic.
+
+**3. Custom hooks:** Business logic is encapsulated in custom hooks (`useConversion`, `useCurrencies`), keeping components clean and focused on presentation.
+
+**4. TypeScript:** Full type safety across the application to catch errors at compile time.
+
+## Testing Strategy
+
+### Why E2E Tests?
+
+This project uses **End-to-End (E2E) tests** instead of unit or integration tests for the following reasons:
+
+1. **Single-page application:** The entire application is one screen, making E2E testing more practical than fragmenting logic across multiple unit tests.
+
+2. **Real API integration:** E2E tests validate the entire flow from UI interactions to API responses, ensuring the application works as users expect.
+
+3. **Comprehensive coverage:** A single E2E test can validate multiple aspects (UI, API, state management, error handling) simultaneously.
+
+### Test Coverage
+
+The test suite includes 20 E2E tests covering:
+
+- Currency conversions with different pairs (USD→EUR, EUR→USD, GBP→CAD, etc.)
+- Amount changes and dynamic title updates
+- Error scenarios (network errors, server errors, unavailable currencies)
+- Number formatting validation (European format)
+- Input validation (zero, negative numbers)
+- Exact calculation verification with mocked API
+
+**Current test pass rate:** 100% (20/20 tests passing)
+
+## Technology Stack
+
+### Core Libraries
+
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite (Rolldown)** - Build tool and dev server
+- **TanStack Query** - Data fetching, caching, and state management
+- **TanStack Virtual** - Virtual scrolling for currency dropdowns
+
+### Styling
+
+- **Tailwind CSS 4** - Utility-first CSS framework
+
+We chose Tailwind for this project because:
+- Fewer files to manage (no separate CSS/SCSS files)
+- Perfect for small projects where custom design systems aren't needed
+- Faster development with utility classes
+- Built-in responsive design
+
+### Testing
+
+- **Playwright** - E2E testing framework
+
+### Development Tools
+
+- **Husky** - Git hooks management (pre-push)
+- **ESLint** - Code linting
+
+### Why No Component Libraries?
+
+This project intentionally **does not use any component libraries** (Material-UI, Chakra UI, Ant Design, etc.) for the following reasons:
+
+1. **Small project scope:** The application has only a few components (select, input, button). Creating custom components is faster than learning and configuring a library.
+
+2. **Full control:** Custom components give us complete control over styling, behavior, and bundle size.
+
+3. **No bloat:** Component libraries often include hundreds of components we don't need, increasing bundle size unnecessarily.
+
+4. **Learning experience:** Building components from scratch demonstrates fundamental React skills.
+
+All components are **built natively** using React, TypeScript, and Tailwind CSS, without external dependencies beyond the core libraries mentioned above.
+
+## API
+
+This application uses the [VATComply API](https://www.vatcomply.com/) for currency data:
+
+- **Currencies endpoint:** `GET /currencies` - Returns available currencies with names and symbols
+- **Rates endpoint:** `GET /rates?base=USD&symbols=EUR` - Returns exchange rates for specified currencies
+
+## Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+VITE_API_BASE_URL=https://api.vatcomply.com
+```
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## License
+
+MIT
+
+## Author
+
+Lucas Pereyra
